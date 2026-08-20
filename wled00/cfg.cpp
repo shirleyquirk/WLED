@@ -766,6 +766,15 @@ bool deserializeConfig(JsonObject doc, bool fromFS) {
   CJSON(e131ProxyUniverse, dmx[F("e131proxy")]);
   #endif
 
+  #ifdef WLED_DEBUG_HOST
+  JsonObject debug = doc[F("debug")];
+  getStringFromJson(netDebugPrintHost, debug[F("host")], 33);
+  CJSON(netDebugPrintPort, debug[F("port")]);
+  if (netDebugPrintPort < 1 || netDebugPrintPort > 65535) netDebugPrintPort = WLED_DEBUG_PORT;
+  CJSON(netDebugEnabled, debug["en"]);
+  NetDebug.invalidateHost(); // the host string may just have changed
+  #endif
+
   DEBUG_PRINTLN(F("Starting usermod config."));
   JsonObject usermods_settings = doc["um"];
   if (!usermods_settings.isNull()) {
@@ -1270,6 +1279,13 @@ void serializeConfig(JsonObject root) {
   }
 
   dmx[F("e131proxy")] = e131ProxyUniverse;
+  #endif
+
+  #ifdef WLED_DEBUG_HOST
+  JsonObject debug = root.createNestedObject(F("debug"));
+  debug[F("host")] = netDebugPrintHost;
+  debug[F("port")] = netDebugPrintPort;
+  debug["en"] = netDebugEnabled;
   #endif
 
   JsonObject usermods_settings = root.createNestedObject("um");

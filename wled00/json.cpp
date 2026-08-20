@@ -1347,10 +1347,51 @@ class LockedJsonResponse: public AsyncJsonResponse {
   virtual ~LockedJsonResponse() { if (_holding_lock) releaseJSONBufferLock(); };
 };
 
+void serializeDmxDiag(JsonObject root)
+{
+  root[F("addr")] = DMXAddress;
+  root[F("mode")] = DMXMode;
+  root[F("segSpacing")] = DMXSegmentSpacing;
+
+  JsonObject out = root.createNestedObject(F("out"));
+  #ifdef WLED_ENABLE_DMX
+  out["en"] = true;
+  out[F("proxyUni")] = e131ProxyUniverse;
+  out[F("start")] = DMXStart;
+  out[F("gap")] = DMXGap;
+  out[F("startLed")] = DMXStartLED;
+  out[F("channels")] = DMXChannels;
+  const unsigned total = strip.getLengthTotal();
+  const unsigned fixtures = total > DMXStartLED ? total - DMXStartLED : 0;
+  out[F("fixtures")] = fixtures;
+  // Highest channel this configuration would address. Anything past 512 does not fit
+  // in a DMX universe, so the fixture count and/or the gap need reducing.
+  const unsigned maxChannel = fixtures ? DMXStart + DMXGap * (fixtures - 1) + DMXChannels - 1 : 0;
+  out[F("maxChannel")] = maxChannel;
+  out[F("overflow")] = maxChannel > 512;
+  JsonArray map = out.createNestedArray(F("map"));
+  for (unsigned i = 0; i < DMXChannels && i < 15; i++) map.add(DMXFixtureMap[i]);
+  #else
+  out["en"] = false;
+  #endif
+
+  JsonObject in = root.createNestedObject("in");
+  #ifdef WLED_ENABLE_DMX_INPUT
+  in["en"] = true;
+  in[F("port")] = dmxInputPort;
+  in[F("rxPin")] = dmxInputReceivePin;
+  in[F("txPin")] = dmxInputTransmitPin;
+  in[F("enPin")] = dmxInputEnablePin;
+  in[F("connected")] = dmxInput.isConnected();
+  #else
+  in["en"] = false;
+  #endif
+}
+
 void serveJson(AsyncWebServerRequest* request)
 {
   enum class json_target {
-    all, state, info, state_info, nodes, effects, palettes, networks, config, pins
+    all, state, info, state_info, nodes, effects, palettes, networks, config, pins, dmx
   };
   json_target subJson = json_target::all;
 
@@ -1365,6 +1406,7 @@ void serveJson(AsyncWebServerRequest* request)
   else if (url.indexOf(F("net"))   > 0) subJson = json_target::networks;
   else if (url.indexOf(F("cfg"))   > 0) subJson = json_target::config;
   else if (url.indexOf(F("pins"))  > 0) subJson = json_target::pins;
+  else if (url.indexOf(F("dmx"))   > 0) subJson = json_target::dmx;
   #ifdef WLED_ENABLE_JSONLIVE
   else if (url.indexOf("live")     > 0) {
     serveLiveLeds(request);
@@ -1408,6 +1450,8 @@ void serveJson(AsyncWebServerRequest* request)
       serializeConfig(lDoc); break;
     case json_target::pins:
       serializePins(lDoc); break;
+    case json_target::dmx:
+      serializeDmxDiag(lDoc); break;
     case json_target::state_info:
     case json_target::all:
       JsonObject state = lDoc.createNestedObject("state");
