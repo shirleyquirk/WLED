@@ -24,9 +24,12 @@ size_t NetworkDebugPrinter::write(const uint8_t *buf, size_t size) {
   const uint32_t ip = targetIp;
   if (!WLED_CONNECTED || buf == nullptr || !netDebugEnabled || !ip) return 0;
 
-  debugUdp.beginPacket(IPAddress(ip), netDebugPrintPort);
-  size = debugUdp.write(buf, size);
-  debugUdp.endPacket();
+  #ifdef ARDUINO_ARCH_ESP32
+  const std::lock_guard<std::mutex> guard(socket.lock);
+  #endif
+  socket.udp.beginPacket(IPAddress(ip), netDebugPrintPort);
+  size = socket.udp.write(buf, size);
+  socket.udp.endPacket();
   return size;
 }
 

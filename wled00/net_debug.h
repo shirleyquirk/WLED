@@ -4,10 +4,21 @@
 #include <WString.h>
 #include <WiFiUdp.h>
 #include <atomic>
+#ifdef ARDUINO_ARCH_ESP32
+#include <mutex>
+#endif
 
 class NetworkDebugPrinter : public Print {
   private:
-    WiFiUDP debugUdp; // needs to be here otherwise UDP messages get truncated upon destruction
+    /// The socket and the lock that guards it. Debug output is written both from the
+    /// main loop and from driver tasks on the other core, and a datagram is built over
+    /// several calls, so the sequence below must not interleave.
+    struct {
+      WiFiUDP udp; // needs to be here otherwise UDP messages get truncated upon destruction
+      #ifdef ARDUINO_ARCH_ESP32
+      std::mutex lock;
+      #endif
+    } socket;
     /// Address of netDebugPrintHost, 0 while unresolved. Resolving it needs a working
     /// connection and may block on DNS, so it happens when the network comes up rather
     /// than on every print.
