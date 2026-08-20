@@ -909,6 +909,10 @@ void WLED::initInterfaces()
 {
   DEBUG_PRINTLN(F("Init STA interfaces"));
 
+#ifdef WLED_DEBUG_HOST
+  NetDebug.resolveTarget(); // DNS is only available now that we are connected
+#endif
+
 #ifndef WLED_DISABLE_HUESYNC
   IPAddress ipAddress = WLEDNetwork.localIP();
   if (hueIP[0] == 0) {
