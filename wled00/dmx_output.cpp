@@ -27,8 +27,13 @@ void handleDMXOutput()
      if (DMXFixtureMap[i] == 5) calc_brightness = false;
    }
 
-  uint16_t len = strip.getLengthTotal();
-  for (int i = DMXStartLED; i < len; i++) {        // uses the amount of LEDs as fixture count
+  // Uses the amount of LEDs as fixture count, but only as many as this addressing can
+  // reach: anything past the end of the universe has nowhere to go.
+  const unsigned maxFixtures = dmxFixturesInUniverse(DMXStart, DMXGap, DMXChannels);
+  const unsigned len = strip.getLengthTotal();
+  const unsigned available = (len > DMXStartLED) ? len - DMXStartLED : 0;
+  const unsigned fixtures = (available > maxFixtures) ? maxFixtures : available;
+  for (unsigned i = DMXStartLED; i < DMXStartLED + fixtures; i++) {
 
     uint32_t in = strip.getPixelColor(i);     // get the colors for the individual fixtures as suggested by Aircoookie in issue #462
     byte w = W(in);
@@ -36,9 +41,8 @@ void handleDMXOutput()
     byte g = G(in);
     byte b = B(in);
 
-    int DMXFixtureStart = DMXStart + (DMXGap * (i - DMXStartLED));
-    for (int j = 0; j < DMXChannels; j++) {
-      int DMXAddr = DMXFixtureStart + j;
+    for (unsigned j = 0; j < DMXChannels; j++) {
+      const unsigned DMXAddr = dmxChannelAddress(DMXStart, DMXGap, i - DMXStartLED, j);
       switch (DMXFixtureMap[j]) {
         case 0:        // Set this channel to 0. Good way to tell strobe- and fade-functions to fuck right off.
           dmx.write(DMXAddr, 0);

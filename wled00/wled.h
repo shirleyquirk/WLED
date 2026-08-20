@@ -145,6 +145,7 @@
 #endif
 
 #ifdef WLED_ENABLE_DMX
+ #include "dmx_addressing.h"
  #if defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6)  || defined(CONFIG_IDF_TARGET_ESP32C61)  || defined(CONFIG_IDF_TARGET_ESP32P4) 
   #error "DMX output is not supported on ESP32-C5/C6/P4 (esp_dmx library excluded)"
  #elif defined(ESP8266) || defined(CONFIG_IDF_TARGET_ESP32C3)|| defined(CONFIG_IDF_TARGET_ESP32S2)

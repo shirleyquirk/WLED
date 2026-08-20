@@ -1368,12 +1368,12 @@ void serializeDmxInfo(JsonObject root)
   out[F("channels")] = DMXChannels;
   const unsigned total = strip.getLengthTotal();
   const unsigned fixtures = total > DMXStartLED ? total - DMXStartLED : 0;
+  // How many fixtures the LED count asks for, versus how many this addressing can
+  // reach. When it asks for more, the surplus is silently not driven, so say so.
+  const unsigned addressable = dmxFixturesInUniverse(DMXStart, DMXGap, DMXChannels);
   out[F("fixtures")] = fixtures;
-  // Highest channel this configuration addresses. A DMX universe ends at 512, so
-  // anything beyond that does not fit and the gap or fixture count needs reducing.
-  const unsigned maxChannel = fixtures ? DMXStart + DMXGap * (fixtures - 1) + DMXChannels - 1 : 0;
-  out[F("maxChannel")] = maxChannel;
-  out[F("overflow")] = maxChannel > 512;
+  out[F("addressable")] = addressable;
+  out[F("overflow")] = fixtures > addressable;
   JsonArray map = out.createNestedArray(F("map"));
   for (unsigned i = 0; i < DMXChannels && i < 15; i++) map.add(DMXFixtureMap[i]);
   #else
