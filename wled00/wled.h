@@ -40,7 +40,7 @@
 #else
   #undef WLED_ENABLE_ADALIGHT      // disable has priority over enable
 #endif
-//#define WLED_ENABLE_DMX          // uses 3.5kb
+//#define WLED_ENABLE_DMX_OUTPUT   // DMX serial output; uses 3.5kb. Old name: WLED_ENABLE_DMX
 #ifndef WLED_DISABLE_LOXONE
   #define WLED_ENABLE_LOXONE       // uses 1.2kb
 #endif
@@ -144,7 +144,7 @@
   #include "src/dependencies/espalexa/EspalexaDevice.h"
 #endif
 
-#ifdef WLED_ENABLE_DMX
+#ifdef WLED_ENABLE_DMX_OUTPUT
  #include "dmx_addressing.h"
  #if defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6)  || defined(CONFIG_IDF_TARGET_ESP32C61)  || defined(CONFIG_IDF_TARGET_ESP32P4) 
   #error "DMX output is not supported on ESP32-C5/C6/P4 (esp_dmx library excluded)"
@@ -435,7 +435,7 @@ WLED_GLOBAL int arlsOffset _INIT(0);                              // realtime LE
 WLED_GLOBAL bool arlsDisableGammaCorrection _INIT(true);          // activate if gamma correction is handled by the source
 WLED_GLOBAL bool arlsForceMaxBri _INIT(false);                    // enable to force max brightness if source has very dark colors that would be black
 
-#ifdef WLED_ENABLE_DMX
+#ifdef WLED_ENABLE_DMX_OUTPUT
  #if defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32C61) || defined(CONFIG_IDF_TARGET_ESP32P4) 
   #error "DMX output is not supported on ESP32-C5/C6/P4 (esp_dmx library excluded)"
  #elif defined(ESP8266) || defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S2)

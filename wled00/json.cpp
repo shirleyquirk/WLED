@@ -1359,7 +1359,7 @@ void serializeDmxInfo(JsonObject root)
   root[F("segSpacing")] = DMXSegmentSpacing;
 
   JsonObject out = root.createNestedObject(F("out"));
-  #ifdef WLED_ENABLE_DMX
+  #ifdef WLED_ENABLE_DMX_OUTPUT
   out["en"] = true;
   out[F("proxyUni")] = e131ProxyUniverse;
   out[F("start")] = DMXStart;

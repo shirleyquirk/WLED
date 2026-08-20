@@ -2,6 +2,13 @@
 #ifndef WLED_CONST_H
 #define WLED_CONST_H
 
+// WLED_ENABLE_DMX was the old name for the DMX *output* gate: it read like a general
+// DMX switch but never covered input, which has always had WLED_ENABLE_DMX_INPUT.
+// Caught here rather than silently ignored, which would disable output without a word.
+#ifdef WLED_ENABLE_DMX
+  #error "WLED_ENABLE_DMX has been renamed to WLED_ENABLE_DMX_OUTPUT"
+#endif
+
 /*
  * Readability defines and their associated numerical values + compile-time constants
  */
@@ -704,7 +711,7 @@ static_assert(WLED_MAX_BUSSES <= 32, "WLED_MAX_BUSSES exceeds hard limit");
 
 // Defaults pins, type and counts to configure LED output
 #if defined(ESP8266) || defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32C61) || defined(CONFIG_IDF_TARGET_ESP32P4)
-  #ifdef WLED_ENABLE_DMX
+  #ifdef WLED_ENABLE_DMX_OUTPUT
     #define DEFAULT_LED_PIN 1
     #warning "Compiling with DMX. The default LED pin has been changed to pin 1."
   #else

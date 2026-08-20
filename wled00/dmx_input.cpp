@@ -174,12 +174,9 @@ void DMXInput::init(int8_t rxPin, int8_t txPin, int8_t enPin, uint8_t inputPortN
 {
 
 #ifdef WLED_ENABLE_DMX_OUTPUT
-  //TODO add again once dmx output has been merged
-  // if(inputPortNum == dmxOutputPort)
-  // {
-  //   DEBUG_PRINTF("DMXInput: Error: Input port == output port");
-  //   return;
-  // }
+  // TODO: refuse to share a UART with the output driver. Until that driver takes a
+  // configurable port there is no dmxOutputPort to compare against; it is hardcoded to
+  // UART2, which is also this input's default, so the two do currently collide.
 #endif
 
   if (inputPortNum <= (SOC_UART_NUM - 1) && inputPortNum > 0) {

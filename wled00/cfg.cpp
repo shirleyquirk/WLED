@@ -750,7 +750,7 @@ bool deserializeConfig(JsonObject doc, bool fromFS) {
     CJSON(otaSameSubnet, ota[F("same-subnet")]);
   }
 
-  #ifdef WLED_ENABLE_DMX
+  #ifdef WLED_ENABLE_DMX_OUTPUT
   JsonObject dmx = doc["dmx"];
   CJSON(DMXChannels, dmx[F("chan")]);
   CJSON(DMXGap,dmx[F("gap")]);
@@ -1266,7 +1266,7 @@ void serializeConfig(JsonObject root) {
   #endif
   ota[F("same-subnet")] = otaSameSubnet;
 
-  #ifdef WLED_ENABLE_DMX
+  #ifdef WLED_ENABLE_DMX_OUTPUT
   JsonObject dmx = root.createNestedObject("dmx");
   dmx[F("chan")] = DMXChannels;
   dmx[F("gap")] = DMXGap;
