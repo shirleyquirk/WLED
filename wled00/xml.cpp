@@ -521,6 +521,13 @@ void getSettingsJS(byte subPage, Print& settingsScript)
     printSetFormValue(settingsScript,SET_F("IDME"),dmxInputEnablePin);
     printSetFormValue(settingsScript,SET_F("IDMP"),dmxInputPort);
 #endif
+#ifndef WLED_DEBUG_HOST
+    settingsScript.print(F("toggle('NetDebug');"));  // hide network debug settings
+#else
+    printSetFormValue(settingsScript,SET_F("NDH"),netDebugPrintHost);
+    printSetFormValue(settingsScript,SET_F("NDP"),netDebugPrintPort);
+    printSetFormCheckbox(settingsScript,SET_F("NDE"),netDebugEnabled);
+#endif
     printSetFormValue(settingsScript,PSTR("DA"),DMXAddress);
     printSetFormValue(settingsScript,PSTR("XX"),DMXSegmentSpacing);
     printSetFormValue(settingsScript,PSTR("PY"),e131Priority);

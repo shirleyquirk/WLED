@@ -208,6 +208,17 @@ Realtime LED offset: <input name="WO" type="number" min="-255" max="255" require
 </div> 
 </div>
 <div class="sec">
+<h3>Network Debug</h3>
+<div id="NetDebug">
+	Send debug log to: <input name="NDH" type="text" maxlength="32"> : <input name="NDP" type="number" min="1" max="65535"><br>
+	Enabled: <input type="checkbox" name="NDE"><br>
+	<i>Leave the host empty to disable. Receive the log with <b>nc -u -l &lt;port&gt;</b>.</i><br>
+</div>
+<div id="NoNetDebug" class="hide">
+	<i class="warn">This firmware build does not include network debug output.<br></i>
+</div>
+</div>
+<div class="sec">
 <h3>Alexa Voice Assistant</h3>
 <div id="NoAlexa" class="hide">
 	<i class="warn">This firmware build does not include Alexa support.<br></i><br>

@@ -503,6 +503,14 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
     if(dmxInputPort <= 0 || dmxInputPort > 2) dmxInputPort = 2;
 #endif
 
+#ifdef WLED_DEBUG_HOST
+    strlcpy(netDebugPrintHost, request->arg(F("NDH")).c_str(), 33);
+    t = request->arg(F("NDP")).toInt();
+    if (t > 0 && t <= 65535) netDebugPrintPort = t;
+    netDebugEnabled = request->hasArg(F("NDE"));
+    NetDebug.resolveTarget(); // apply the new host right away
+#endif
+
     #ifndef WLED_DISABLE_ALEXA
     alexaEnabled = request->hasArg(F("AL"));
     strlcpy(alexaInvocationName, request->arg(F("AI")).c_str(), 33);
