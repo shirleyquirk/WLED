@@ -509,17 +509,14 @@ void getSettingsJS(byte subPage, Print& settingsScript)
     printSetFormCheckbox(settingsScript,PSTR("ES"),e131SkipOutOfSequence);
     printSetFormCheckbox(settingsScript,PSTR("EM"),e131Multicast);
     printSetFormValue(settingsScript,PSTR("EU"),e131Universe);
-#ifdef WLED_ENABLE_DMX_OUTPUT
-    settingsScript.print(SET_F("hideNoDMXOutput();"));  // hide "not compiled in" message
-#endif
-#ifndef WLED_ENABLE_DMX_INPUT
-    settingsScript.print(SET_F("hideDMXInput();"));  // hide "dmx input" settings
+#if !defined(WLED_ENABLE_DMX_OUTPUT) && !defined(WLED_ENABLE_DMX_INPUT)
+    settingsScript.print(F("toggle('DmxWired');"));  // hide the wired DMX settings
 #else
-    settingsScript.print(SET_F("hideNoDMXInput();"));  //hide "not compiled in" message
-    printSetFormValue(settingsScript,SET_F("IDMT"),dmxInputTransmitPin);
-    printSetFormValue(settingsScript,SET_F("IDMR"),dmxInputReceivePin);
-    printSetFormValue(settingsScript,SET_F("IDME"),dmxInputEnablePin);
-    printSetFormValue(settingsScript,SET_F("IDMP"),dmxInputPort);
+    printSetFormIndex(settingsScript,SET_F("DMD"),dmxDirection);
+    printSetFormValue(settingsScript,SET_F("DMTX"),dmxTxPin);
+    printSetFormValue(settingsScript,SET_F("DMRX"),dmxRxPin);
+    printSetFormValue(settingsScript,SET_F("DMEN"),dmxEnPin);
+    printSetFormValue(settingsScript,SET_F("DMP"),dmxPort);
 #endif
 #ifndef WLED_DEBUG_HOST
     settingsScript.print(F("toggle('NetDebug');"));  // hide network debug settings

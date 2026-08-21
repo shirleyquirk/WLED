@@ -90,11 +90,8 @@ void WLED::loop()
   handleImprovWifiScan();
   handleNotifications();
   handleTransitions();
-  #ifdef WLED_ENABLE_DMX_OUTPUT
-  handleDMXOutput();
-  #endif
-  #ifdef WLED_ENABLE_DMX_INPUT
-  dmxInput.update();
+  #if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+  Dmx.loop();
   #endif
 
   #ifdef WLED_DEBUG
@@ -473,9 +470,6 @@ void WLED::setup()
 #if defined(WLED_DEBUG) && !defined(WLED_DEBUG_HOST)
   PinManager::allocatePin(hardwareTX, true, PinOwner::DebugOut); // TX (GPIO1 on ESP32) reserved for debug output
 #endif
-#ifdef WLED_ENABLE_DMX_OUTPUT //reserve GPIO2 as hardcoded DMX pin
-  PinManager::allocatePin(2, true, PinOwner::DMX);
-#endif
 
   DEBUG_PRINTF_P(PSTR("heap %u\n"), getFreeHeapSize());
 
@@ -619,11 +613,8 @@ void WLED::setup()
       ArduinoOTA.setHostname(cmDNS);
   }
 #endif
-#ifdef WLED_ENABLE_DMX_OUTPUT
-  initDMXOutput();
-#endif
-#ifdef WLED_ENABLE_DMX_INPUT
-  dmxInput.init(dmxInputReceivePin, dmxInputTransmitPin, dmxInputEnablePin, dmxInputPort);
+#if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+  Dmx.init();
 #endif
 
 #ifdef WLED_ENABLE_ADALIGHT

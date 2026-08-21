@@ -48,10 +48,10 @@
 	function getURL(path) {
 		return (loc ? locproto + "//" + locip : "") + path;
 	}
-	const dmxNs = ["IDMR","IDMT","IDME"];
+	const dmxNs = ["DMRX","DMTX","DMEN"];
 	let dmxOwnPins; // track dmx pins to update dropdown restrictions on pin change
 	function pinDropdowns() {
-		dmxNs.forEach((n,i) => { const s = makePinSelect(n, i?1:0); if (s) s.onchange = dmxPinUpd; }); // note on the i?1:0 -> RX pin is allowed input only but TX/EN pins must be GPIO
+		dmxNs.forEach((n,i) => { const s = makePinSelect(n, i?1:0); if (s) s.onchange = dmxPinUpd; }); // i?1:0 -> RX may be input-only, TX/EN must be output-capable
 		dmxOwnPins = dmxNs.map(n => parseInt(gN(n)?.value??-1));
 		dmxPinUpd();
 	}
@@ -66,9 +66,6 @@
 			}
 		});
 	}
-	function hideDMXInput(){gId("dmxInput").style.display="none";}
-	function hideNoDMXInput(){gId("dmxInputOff").style.display="none";}
-	function hideNoDMXOutput(){gId("dmxOnOffOutput").style.display="none";}
 	</script>
 </head>
 <body>
@@ -191,21 +188,25 @@ Timeout: <input name="ET" type="number" min="1" max="65000" required> ms<br>
 Force max brightness: <input type="checkbox" name="FB"><br>
 Disable realtime gamma correction: <input type="checkbox" name="RG"><br>
 Realtime LED offset: <input name="WO" type="number" min="-255" max="255" required>
-<div id="dmxInput">
+<div id="DmxWired">
 	<br>
-	<h4>Wired DMX Input</h4>
-	DMX RX Pin: <input name="IDMR" type="number" min="-1" max="99">RO<br/>
-	DMX TX Pin: <input name="IDMT" type="number" min="-1" max="99">DI<br/>
-	DMX Enable Pin: <input name="IDME" type="number" min="-1" max="99">RE+DE<br/>
-	DMX Port: <input name="IDMP" type="number" min="1" max="2"><br/>
+	<h4>Wired DMX</h4>
+	Direction:
+	<select name="DMD">
+		<option value="0">Off</option>
+		<option value="1">Output (drive fixtures)</option>
+		<option value="2">Input (be a fixture)</option>
+	</select><br/>
+	DMX TX Pin: <input name="DMTX" type="number" min="-1" max="99">DI<br/>
+	DMX RX Pin: <input name="DMRX" type="number" min="-1" max="99">RO<br/>
+	DMX Enable Pin: <input name="DMEN" type="number" min="-1" max="99">RE+DE, -1 if none<br/>
+	DMX Port: <input name="DMP" type="number" min="1" max="2"><br/>
+	<i>Output needs TX. Input needs RX, and TX as well to answer RDM.</i><br>
 	<i class="warn">Reboot required to apply changes.</i>
 </div>
-<div id="dmxInputOff">
-	<br><i class="warn">This firmware build does not include DMX Input support. <br></i>
-</div> 
-<div id="dmxOnOffOutput">
-  <br><i class="warn">This firmware build does not include DMX output support. <br></i>
-</div> 
+<div id="NoDmxWired" class="hide">
+	<br><i class="warn">This firmware build does not include wired DMX support.<br></i>
+</div>
 </div>
 <div class="sec">
 <h3>Network Debug</h3>

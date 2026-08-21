@@ -1380,16 +1380,15 @@ void serializeDmxInfo(JsonObject root)
   out["en"] = false;
   #endif
 
-  JsonObject in = root.createNestedObject("in");
-  #ifdef WLED_ENABLE_DMX_INPUT
-  in["en"] = true;
-  in[F("port")] = dmxInputPort;
-  in[F("rxPin")] = dmxInputReceivePin;
-  in[F("txPin")] = dmxInputTransmitPin;
-  in[F("enPin")] = dmxInputEnablePin;
-  in[F("connected")] = dmxInput.isConnected();
-  #else
-  in["en"] = false;
+  #if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+  JsonObject port = root.createNestedObject(F("port"));
+  port[F("dir")] = uint8_t(Dmx.direction());
+  port[F("running")] = Dmx.isRunning();
+  port[F("uart")] = Dmx.port();
+  port[F("txPin")] = dmxTxPin;
+  port[F("rxPin")] = dmxRxPin;
+  port[F("enPin")] = dmxEnPin;
+  port[F("connected")] = Dmx.isConnected();
   #endif
 }
 

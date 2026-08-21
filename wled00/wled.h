@@ -144,19 +144,12 @@
   #include "src/dependencies/espalexa/EspalexaDevice.h"
 #endif
 
-#ifdef WLED_ENABLE_DMX_OUTPUT
- #include "dmx_addressing.h"
- #if defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6)  || defined(CONFIG_IDF_TARGET_ESP32C61)  || defined(CONFIG_IDF_TARGET_ESP32P4) 
-  #error "DMX output is not supported on ESP32-C5/C6/P4 (esp_dmx library excluded)"
- #elif defined(ESP8266) || defined(CONFIG_IDF_TARGET_ESP32C3)|| defined(CONFIG_IDF_TARGET_ESP32S2)
-  #include "src/dependencies/dmx/ESPDMX.h"
- #else //ESP32
-  #include "src/dependencies/dmx/SparkFunDMX.h"
+#if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+ #if defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32C61) || defined(CONFIG_IDF_TARGET_ESP32P4)
+  #error "DMX is not supported on ESP32-C5/C6/P4 (esp_dmx does not handle their UART registers yet)"
  #endif
-#endif
-
-#ifdef WLED_ENABLE_DMX_INPUT
-  #include "dmx_input.h"
+ #include "dmx_addressing.h"
+ #include "dmx.h"
 #endif
 
 #include "src/dependencies/e131/ESPAsyncE131.h"
@@ -435,14 +428,20 @@ WLED_GLOBAL int arlsOffset _INIT(0);                              // realtime LE
 WLED_GLOBAL bool arlsDisableGammaCorrection _INIT(true);          // activate if gamma correction is handled by the source
 WLED_GLOBAL bool arlsForceMaxBri _INIT(false);                    // enable to force max brightness if source has very dark colors that would be black
 
+#if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+  // Wiring. Shared by both directions because there is one port either way; pins are
+  // unset by default, so DMX stays inert until it has been configured.
+  WLED_GLOBAL uint8_t dmxDirection _INIT(0);      // DmxDirection: 0 off, 1 output, 2 input
+  WLED_GLOBAL int dmxTxPin _INIT(-1);
+  WLED_GLOBAL int dmxRxPin _INIT(-1);
+  WLED_GLOBAL int dmxEnPin _INIT(-1);             // transceiver DE/!RE, optional
+  #if defined(ARDUINO_ARCH_ESP32) && (SOC_UART_NUM > 2)
+  WLED_GLOBAL int dmxPort _INIT(2);
+  #else
+  WLED_GLOBAL int dmxPort _INIT(1);               // port 0 is the console on every part
+  #endif
+#endif
 #ifdef WLED_ENABLE_DMX_OUTPUT
- #if defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32C61) || defined(CONFIG_IDF_TARGET_ESP32P4) 
-  #error "DMX output is not supported on ESP32-C5/C6/P4 (esp_dmx library excluded)"
- #elif defined(ESP8266) || defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S2)
-  WLED_GLOBAL DMXESPSerial dmx;
- #else //ESP32
-  WLED_GLOBAL SparkFunDMX dmx;
- #endif
   WLED_GLOBAL uint16_t e131ProxyUniverse _INIT(0);                  // output this E1.31 (sACN) / ArtNet universe via MAX485 (0 = disabled)
   // dmx CONFIG
   WLED_GLOBAL byte DMXChannels _INIT(7);        // number of channels per fixture
@@ -451,17 +450,6 @@ WLED_GLOBAL bool arlsForceMaxBri _INIT(false);                    // enable to f
   WLED_GLOBAL uint16_t DMXGap _INIT(10);          // gap between the fixtures. makes addressing easier because you don't have to memorize odd numbers when climbing up onto a rig.
   WLED_GLOBAL uint16_t DMXStart _INIT(10);        // start address of the first fixture
   WLED_GLOBAL uint16_t DMXStartLED _INIT(0);      // LED from which DMX fixtures start
-#endif
-#ifdef WLED_ENABLE_DMX_INPUT
-  WLED_GLOBAL int dmxInputTransmitPin _INIT(-1);
-  WLED_GLOBAL int dmxInputReceivePin _INIT(-1);
-  WLED_GLOBAL int dmxInputEnablePin _INIT(-1);
-  #if defined(ARDUINO_ARCH_ESP32) && (SOC_UART_NUM > 2)
-  WLED_GLOBAL int dmxInputPort _INIT(2);
-  #else
-  WLED_GLOBAL int dmxInputPort _INIT(1);  // some MCUs only have two UART units
-  #endif
-  WLED_GLOBAL DMXInput dmxInput;
 #endif
 
 WLED_GLOBAL uint16_t e131Universe _INIT(1);                       // settings for E1.31 (sACN) protocol (only DMX_MODE_MULTIPLE_* can span over consequtive universes)

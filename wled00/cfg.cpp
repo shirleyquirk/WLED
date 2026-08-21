@@ -617,11 +617,19 @@ bool deserializeConfig(JsonObject doc, bool fromFS) {
   tdd = if_live[F("timeout")] | -1;
   if (tdd >= 0) realtimeTimeoutMs = tdd * 100;
 
-  #ifdef WLED_ENABLE_DMX_INPUT
-    CJSON(dmxInputTransmitPin, if_live_dmx[F("inputRxPin")]);
-    CJSON(dmxInputReceivePin, if_live_dmx[F("inputTxPin")]);
-    CJSON(dmxInputEnablePin, if_live_dmx[F("inputEnablePin")]);
-    CJSON(dmxInputPort, if_live_dmx[F("dmxInputPort")]);
+  #if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+    CJSON(dmxDirection, if_live_dmx[F("dir")]);
+    CJSON(dmxTxPin, if_live_dmx[F("txPin")]);
+    CJSON(dmxRxPin, if_live_dmx[F("rxPin")]);
+    CJSON(dmxEnPin, if_live_dmx[F("enPin")]);
+    CJSON(dmxPort, if_live_dmx[F("port")]);
+    // Pre-unification keys. Note inputRxPin/inputTxPin were written swapped, so they
+    // round-tripped but read backwards; take them the way they were actually stored.
+    CJSON(dmxTxPin, if_live_dmx[F("inputRxPin")]);
+    CJSON(dmxRxPin, if_live_dmx[F("inputTxPin")]);
+    CJSON(dmxEnPin, if_live_dmx[F("inputEnablePin")]);
+    CJSON(dmxPort, if_live_dmx[F("dmxInputPort")]);
+    if (dmxDirection > 2) dmxDirection = 0;
   #endif
 
   CJSON(arlsForceMaxBri, if_live[F("maxbri")]);
@@ -1156,11 +1164,12 @@ void serializeConfig(JsonObject root) {
   if_live_dmx[F("addr")] = DMXAddress;
   if_live_dmx[F("dss")] = DMXSegmentSpacing;
   if_live_dmx["mode"] = DMXMode;
-  #ifdef WLED_ENABLE_DMX_INPUT
-    if_live_dmx[F("inputRxPin")] = dmxInputTransmitPin;
-    if_live_dmx[F("inputTxPin")] = dmxInputReceivePin;
-    if_live_dmx[F("inputEnablePin")] = dmxInputEnablePin;
-    if_live_dmx[F("dmxInputPort")] = dmxInputPort;
+  #if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+    if_live_dmx[F("dir")] = dmxDirection;
+    if_live_dmx[F("txPin")] = dmxTxPin;
+    if_live_dmx[F("rxPin")] = dmxRxPin;
+    if_live_dmx[F("enPin")] = dmxEnPin;
+    if_live_dmx[F("port")] = dmxPort;
   #endif
 
   if_live[F("timeout")] = realtimeTimeoutMs / 100;

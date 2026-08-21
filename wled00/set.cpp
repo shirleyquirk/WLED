@@ -495,12 +495,14 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
     t = request->arg(F("WO")).toInt();
     if (t >= -255  && t <= 255) arlsOffset = t;
 
-#ifdef WLED_ENABLE_DMX_INPUT
-    dmxInputTransmitPin = request->arg(F("IDMT")).toInt();
-    dmxInputReceivePin = request->arg(F("IDMR")).toInt();
-    dmxInputEnablePin = request->arg(F("IDME")).toInt();
-    dmxInputPort = request->arg(F("IDMP")).toInt();
-    if(dmxInputPort <= 0 || dmxInputPort > 2) dmxInputPort = 2;
+#if defined(WLED_ENABLE_DMX_OUTPUT) || defined(WLED_ENABLE_DMX_INPUT)
+    t = request->arg(F("DMD")).toInt();
+    if (t >= 0 && t <= 2) dmxDirection = t;
+    dmxTxPin = request->arg(F("DMTX")).toInt();
+    dmxRxPin = request->arg(F("DMRX")).toInt();
+    dmxEnPin = request->arg(F("DMEN")).toInt();
+    t = request->arg(F("DMP")).toInt();
+    if (t > 0 && t < SOC_UART_NUM) dmxPort = t;
 #endif
 
 #ifdef WLED_DEBUG_HOST

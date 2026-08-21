@@ -20,7 +20,6 @@
     WLED_HAVE_I2S0_LEDS (for bus_wrapper.h)
     WLED_HAVE_I2S1_LEDS (for bus_wrapper.h)
     (find a name) // On ESP32-C3/C5/C6 only the first 2 RMT channels are usable for transmitting (bus_wrapper.h)
-    (find a name) // ESP32, S3, P4 can use SparkFunDMX (wled.h, dmx_output.cpp)
     WLED_ALLOW_LOLIN_WIFI_FIX // (wled.h)
  */
 
